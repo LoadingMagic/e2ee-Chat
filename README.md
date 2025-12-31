@@ -7,8 +7,6 @@ A fully functional end-to-end encrypted (E2EE) chat application built with vanil
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![JavaScript](https://img.shields.io/badge/javascript-ES6+-yellow.svg)
-[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen)](https://github.com/LoadingMagic/e2ee-Chat/releases/latest)
-[![Website](https://img.shields.io/badge/Website-e2eechat.online-blue)](https://e2eechat.online)
 
 ## ✨ Features
 
@@ -215,11 +213,11 @@ securechat/
 ✅ **Server-Side Ignorance** - Server cannot read messages.  
 ✅ **Rate Limiting** - Protection against brute-force and spam.  
 ✅ **Key Verification** - Safety numbers with visual verification banner.  
+✅ **Code Signing (SRI)** - Subresource Integrity verifies frontend files haven't been tampered with.  
 
 ### Production Improvements Needed
 
 ⚠️ **Forward Secrecy** - Implement Double Ratchet (like Signal).  
-⚠️ **Code Signing** - Verify frontend hasn't been tampered with.  
 ⚠️ **Audit Logging** - Security event monitoring.  
 
 ### Threat Model
@@ -235,7 +233,14 @@ securechat/
 
 ## 🤝 Contributing
 
-Contributions welcome!
+Contributions welcome! Areas that need work:
+
+- [ ] Forward secrecy (Double Ratchet)
+- [ ] File/image sharing
+- [ ] Message search (client-side)
+- [ ] Desktop app (Electron)
+- [ ] iOS build
+- [ ] Automated tests
 
 ## 📚 Learning Resources
 
