@@ -1,6 +1,6 @@
 # API Documentation
 
-SecureChat uses a simple REST API + WebSocket for real-time messaging.
+SecureChat uses a simple REST API combined with WebSocket for real-time messaging.
 
 ## Base URL
 
@@ -10,7 +10,7 @@ http://localhost:8000
 
 ## Authentication
 
-There is **no traditional authentication**. Users are identified by their cryptographic user ID (32-char hex string). The server cannot verify identity - it simply routes encrypted messages.
+There is **no traditional authentication**. Users are identified by their cryptographic user ID (a 32-character hex string). The server cannot verify identity—it simply routes encrypted messages.
 
 ---
 
@@ -19,6 +19,7 @@ There is **no traditional authentication**. Users are identified by their crypto
 ### Users
 
 #### Register User
+
 ```http
 POST /api/register
 ```
@@ -41,6 +42,7 @@ POST /api/register
 ```
 
 #### Get User
+
 ```http
 GET /api/user/{user_id}
 ```
@@ -55,7 +57,8 @@ GET /api/user/{user_id}
 }
 ```
 
-#### Check User Exists
+#### Check if User Exists
+
 ```http
 GET /api/user/{user_id}/exists
 ```
@@ -72,6 +75,7 @@ GET /api/user/{user_id}/exists
 ### Messages
 
 #### Send Message
+
 ```http
 POST /api/messages?sender_id={sender_id}
 ```
@@ -86,8 +90,8 @@ POST /api/messages?sender_id={sender_id}
 ```
 
 **Note:** Messages are encrypted twice:
-- `encrypted_content`: Encrypted with **recipient's** public key
-- `encrypted_for_sender`: Encrypted with **sender's** public key (so sender can read their own messages)
+- `encrypted_content`: Encrypted with the **recipient's** public key.
+- `encrypted_for_sender`: Encrypted with the **sender's** public key (so the sender can read their own messages).
 
 **Response:**
 ```json
@@ -98,6 +102,7 @@ POST /api/messages?sender_id={sender_id}
 ```
 
 #### Get Messages
+
 ```http
 GET /api/messages/{contact_id}?user_id={user_id}
 ```
@@ -119,6 +124,7 @@ GET /api/messages/{contact_id}?user_id={user_id}
 ```
 
 #### Delete Messages
+
 ```http
 DELETE /api/messages/{contact_id}?user_id={user_id}
 ```
@@ -128,6 +134,7 @@ DELETE /api/messages/{contact_id}?user_id={user_id}
 ### Conversations
 
 #### List Conversations
+
 ```http
 GET /api/conversations?user_id={user_id}
 ```
@@ -152,6 +159,7 @@ GET /api/conversations?user_id={user_id}
 ### Groups
 
 #### Create Group
+
 ```http
 POST /api/groups?user_id={user_id}
 ```
@@ -169,14 +177,16 @@ POST /api/groups?user_id={user_id}
 }
 ```
 
-**Note:** The group AES key is encrypted separately for each member with their RSA public key.
+**Note:** The group AES key is encrypted separately for each member using their RSA public key.
 
 #### Get Groups
+
 ```http
 GET /api/groups?user_id={user_id}
 ```
 
 #### Send Group Message
+
 ```http
 POST /api/groups/{group_id}/messages?user_id={user_id}
 ```
@@ -193,12 +203,15 @@ POST /api/groups/{group_id}/messages?user_id={user_id}
 ## WebSocket
 
 ### Connection
+
 ```
 ws://localhost:8000/ws/{user_id}
 ```
 
 ### Message Format
+
 All messages are JSON:
+
 ```json
 {
     "type": "message_type",
@@ -210,39 +223,39 @@ All messages are JSON:
 
 | Type | Description | Data |
 |------|-------------|------|
-| `new_message` | New message received | `{sender_id, encrypted_content}` |
-| `typing` | User is typing | `{sender_id}` |
-| `user_online` | Contact came online | `{user_id}` |
-| `user_offline` | Contact went offline | `{user_id}` |
-| `messages_read` | Messages were read | `{reader_id}` |
+| `new_message` | New message received. | `{sender_id, encrypted_content}` |
+| `typing` | User is typing. | `{sender_id}` |
+| `user_online` | Contact came online. | `{user_id}` |
+| `user_offline` | Contact went offline. | `{user_id}` |
+| `messages_read` | Messages were read. | `{reader_id}` |
 
 ### Events (Client → Server)
 
 | Type | Description | Data |
 |------|-------------|------|
-| `ping` | Keep-alive | `{}` |
-| `typing` | Notify typing | `{recipient_id}` |
-| `read` | Mark messages read | `{sender_id}` |
+| `ping` | Keep-alive. | `{}` |
+| `typing` | Notify typing. | `{recipient_id}` |
+| `read` | Mark messages as read. | `{sender_id}` |
 
 ---
 
 ## Server Data Model
 
-The server stores:
+The server stores the following:
 
 | Data | Encrypted? | Notes |
 |------|-----------|-------|
-| User ID | No | Public identifier |
-| Public Key | No | Needed for encryption |
-| Display Name | No | Optional, user-set |
-| Messages | **Yes** | Server cannot read |
-| Group Keys | **Yes** | Per-member encrypted |
+| User ID | No | Public identifier. |
+| Public Key | No | Needed for encryption. |
+| Display Name | No | Optional, user-set. |
+| Messages | **Yes** | Server cannot read. |
+| Group Keys | **Yes** | Per-member encrypted. |
 
 The server **cannot**:
-- Read message content
-- Decrypt any data
-- Impersonate users
-- Forge messages
+- Read message content.
+- Decrypt any data.
+- Impersonate users.
+- Forge messages.
 
 ---
 
@@ -250,13 +263,14 @@ The server **cannot**:
 
 ```json
 {
-    "detail": "Error message here"
+    "detail": "Error message here."
 }
 ```
 
 | Status | Meaning |
 |--------|---------|
-| 400 | Bad request (invalid data) |
-| 403 | Forbidden (blocked user) |
-| 404 | Not found (user/group) |
-| 500 | Server error |
+| 400 | Bad request (invalid data). |
+| 403 | Forbidden (blocked user). |
+| 404 | Not found (user/group). |
+| 429 | Too many requests (rate limited). |
+| 500 | Server error. |
