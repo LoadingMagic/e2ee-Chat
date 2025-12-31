@@ -10,13 +10,15 @@ A fully functional end-to-end encrypted (E2EE) chat application built with vanil
 
 ## ✨ Features
 
-- **True End-to-End Encryption** - Messages encrypted in browser, server sees only ciphertext
-- **No Account Required** - No email, phone, or password. Just a cryptographic identity
-- **Recovery Key System** - 64-character hex key for account backup/restore
-- **Group Chats** - Encrypted group messaging with AES key sharing
-- **Real-time Messaging** - WebSocket-based instant delivery
-- **Cross-Platform** - Web app + Android APK (via Capacitor)
-- **Self-Hostable** - Run your own server with full control
+- **True End-to-End Encryption** - Messages are encrypted in the browser. The server sees only ciphertext.
+- **No Account Required** - No email, phone, or password. Just a cryptographic identity.
+- **Recovery Key System** - A 64-character hex key for account backup and restore.
+- **Group Chats** - Encrypted group messaging with AES key sharing.
+- **Real-time Messaging** - WebSocket-based instant delivery.
+- **Rate Limiting** - Built-in protection against abuse (registration, messages, groups).
+- **Key Verification** - Safety numbers to verify contact identity with visual verification banner.
+- **Cross-Platform** - Web app and Android APK (via Capacitor).
+- **Self-Hostable** - Run your own server with full control.
 
 ## 🔐 How The Encryption Works
 
@@ -32,18 +34,18 @@ A fully functional end-to-end encrypted (E2EE) chat application built with vanil
 ┌─────────────────────────────────────────────────────────────────┐
 │                     MESSAGE ENCRYPTION                          │
 ├─────────────────────────────────────────────────────────────────┤
-│  1. Generate random AES-256 key for this message                │
-│  2. Encrypt message with AES-256-GCM                            │
-│  3. Encrypt AES key with recipient's RSA public key             │
+│  1. Generate random AES-256 key for this message.               │
+│  2. Encrypt message with AES-256-GCM.                           │
+│  3. Encrypt AES key with recipient's RSA public key.            │
 │  4. Send: [Encrypted AES Key + IV + Encrypted Message]          │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
 │                     MESSAGE DECRYPTION                          │
 ├─────────────────────────────────────────────────────────────────┤
-│  1. Decrypt AES key using own RSA private key                   │
-│  2. Decrypt message using AES key + IV                          │
-│  3. Display plaintext to user                                   │
+│  1. Decrypt AES key using own RSA private key.                  │
+│  2. Decrypt message using AES key + IV.                         │
+│  3. Display plaintext to user.                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -59,14 +61,14 @@ A fully functional end-to-end encrypted (E2EE) chat application built with vanil
 ### What The Server Sees
 
 ```javascript
-// Server storage - completely opaque
+// Server storage - completely opaque.
 {
   "sender_id": "a1b2c3d4e5f6...",
   "recipient_id": "9z8y7x6w5v4...",
   "encrypted_content": "Base64(RSA(AES_Key) + IV + AES(message))",
   "created_at": "2024-01-15T10:30:00Z"
 }
-// Server CANNOT read message content - no private keys
+// Server CANNOT read message content - no private keys.
 ```
 
 ## 🏗️ Architecture
@@ -80,7 +82,7 @@ A fully functional end-to-end encrypted (E2EE) chat application built with vanil
 │  │  - State Mgmt    │  - RSA/AES       │  - Reconnection    │  │
 │  │  - API Calls     │  - Key Storage   │  - Event Handling  │  │
 │  └──────────────────────────────────────────────────────────┘  │
-└─────────────────────────────┬──────────────────────────────────┘
+└─────────────────────────────────┬──────────────────────────────┘
                               │ HTTPS / WSS
                               ▼
 ┌────────────────────────────────────────────────────────────────┐
@@ -89,6 +91,7 @@ A fully functional end-to-end encrypted (E2EE) chat application built with vanil
 │  │  FastAPI                                                  │  │
 │  │  - REST API (messages, users, groups)                    │  │
 │  │  - WebSocket server (real-time delivery)                 │  │
+│  │  - Rate limiting (registration, messages, groups)        │  │
 │  │  - NO encryption/decryption (just stores blobs)          │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────┐  │
@@ -114,11 +117,11 @@ A fully functional end-to-end encrypted (E2EE) chat application built with vanil
 git clone https://github.com/yourusername/securechat.git
 cd securechat
 
-# Create virtual environment
+# Create virtual environment.
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install dependencies
+# Install dependencies.
 pip install fastapi uvicorn mysql-connector-python websockets python-dotenv
 ```
 
@@ -155,21 +158,21 @@ Visit `http://localhost:8000` - that's it!
 ```bash
 cd frontend
 
-# Install Capacitor
+# Install Capacitor.
 npm install @capacitor/core @capacitor/cli @capacitor/android
 
-# Initialize (first time only)
+# Initialize (first time only).
 npx cap init SecureChat com.securechat.app
 
-# Copy web files to www/
+# Copy web files to www/.
 .\build.ps1  # or: node build.js
 
-# Add Android platform
+# Add Android platform.
 npx cap add android
 
-# Sync and build
+# Sync and build.
 npx cap sync android
-npx cap open android  # Opens Android Studio
+npx cap open android  # Opens Android Studio.
 ```
 
 Build APK in Android Studio: **Build → Build Bundle(s) / APK(s) → Build APK(s)**
@@ -179,10 +182,9 @@ Build APK in Android Studio: **Build → Build Bundle(s) / APK(s) → Build APK(
 ```
 securechat/
 ├── backend/
-│   ├── main.py              # FastAPI server + WebSocket
-│   ├── database.py          # MySQL connection pool
+│   ├── main.py              # FastAPI server + WebSocket + Rate Limiting
 │   ├── schema.sql           # Database schema
-│   └── .env                  # Configuration (not in repo)
+│   └── .env                 # Configuration (not in repo)
 │
 ├── frontend/
 │   ├── index.html           # Single page app
@@ -192,41 +194,42 @@ securechat/
 │   │   ├── app.js           # Main application logic
 │   │   ├── crypto.js        # Web Crypto API wrapper
 │   │   └── websocket.js     # Real-time connection
-│   ├── www/                  # Capacitor build output
-│   ├── android/              # Android project
-│   ├── build.js             # Node.js build script
-│   ├── build.ps1            # PowerShell build script
-│   └── capacitor.config.json
+│   └── package.json
+│
+├── docs/
+│   ├── API.md               # API documentation
+│   └── ENCRYPTION.md        # Encryption details
 │
 └── README.md
 ```
 
-## 🔒 Security Considerations
+## 🔒 Security Features
 
 ### What This Project Does Well
 
-✅ **Proper E2EE** - Private keys never leave the device  
-✅ **Standard Algorithms** - RSA-OAEP, AES-GCM, PBKDF2  
-✅ **No Crypto Libraries** - Native Web Crypto API only  
-✅ **Server-Side Ignorance** - Server cannot read messages  
+✅ **Proper E2EE** - Private keys never leave the device.  
+✅ **Standard Algorithms** - RSA-OAEP, AES-GCM, PBKDF2.  
+✅ **No Crypto Libraries** - Native Web Crypto API only.  
+✅ **Server-Side Ignorance** - Server cannot read messages.  
+✅ **Rate Limiting** - Protection against brute-force and spam.  
+✅ **Key Verification** - Safety numbers with visual verification banner.  
 
 ### Production Improvements Needed
 
-⚠️ **Forward Secrecy** - Implement Double Ratchet (like Signal)  
-⚠️ **Key Verification** - Safety numbers shown but not enforced  
-⚠️ **Code Signing** - Verify frontend hasn't been tampered with  
-⚠️ **Rate Limiting** - Add brute-force protection  
-⚠️ **Audit Logging** - Security event monitoring  
+⚠️ **Forward Secrecy** - Implement Double Ratchet (like Signal).  
+⚠️ **Code Signing** - Verify frontend hasn't been tampered with.  
+⚠️ **Audit Logging** - Security event monitoring.  
 
 ### Threat Model
 
 | Threat | Mitigation |
 |--------|------------|
-| Server compromise | Server has no keys, only encrypted blobs |
-| Network interception | TLS + E2EE double protection |
-| Database leak | Messages remain encrypted |
-| APK decompilation | Security is in keys, not code |
-| Device theft | Keys in localStorage (use device encryption) |
+| Server compromise | Server has no keys, only encrypted blobs. |
+| Network interception | TLS + E2EE double protection. |
+| Database leak | Messages remain encrypted. |
+| APK decompilation | Security is in keys, not code. |
+| Device theft | Keys in localStorage (use device encryption). |
+| Brute-force attacks | Rate limiting on registration, messages, and groups. |
 
 ## 🤝 Contributing
 

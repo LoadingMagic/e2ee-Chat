@@ -3,147 +3,525 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureChat - E2E Encrypted Messaging</title>
+    <title>SecureChat</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>
-    <!-- ===================================================================
+    <!-- ========================================
          WELCOME SCREEN
-         First screen users see - choose to create account or restore
-    =================================================================== -->
+         ======================================== -->
     <div id="welcome-screen" class="screen">
-        <div class="welcome-container">
-            <div class="logo">🔒</div>
-            <h1>SecureChat</h1>
-            <p class="tagline">End-to-End Encrypted Messaging</p>
+        <div class="card">
+            <h1><span class="icon">🔒</span> SecureChat</h1>
+            <p class="subtitle">End-to-End Encrypted Private Messaging</p>
             
-            <div class="welcome-buttons">
-                <button id="btn-new-account" class="btn btn-primary">Create New Account</button>
-                <button id="btn-restore" class="btn btn-secondary">Restore Account</button>
+            <div class="btn-group">
+                <button id="btn-new-account" class="btn btn-primary">Create New Identity</button>
+                <button id="btn-restore" class="btn btn-secondary">Restore with Recovery Key</button>
             </div>
             
-            <div class="welcome-info">
-                <p><strong>No email or phone required.</strong></p>
-                <p>Your identity is a cryptographic key pair.<br>
-                Messages are encrypted in your browser.</p>
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+                <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+                    <strong>🔐 True E2EE</strong> — Messages are encrypted in your browser. 
+                    The server only sees encrypted data it cannot read.<br><br>
+                    <strong>👤 Anonymous</strong> — No email, no phone, no account. 
+                    Just a 32-character ID and optional display name.<br><br>
+                    <strong>🗝️ Self-Custody</strong> — You control your keys. 
+                    Save your recovery key or lose access forever.
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- ===================================================================
+    <!-- ========================================
          SIGNUP SCREEN
-         Shows recovery key (SAVE THIS!) and lets user set display name
-    =================================================================== -->
+         ======================================== -->
     <div id="signup-screen" class="screen hidden">
-        <div class="signup-container">
-            <h2>Your Recovery Key</h2>
-            <p class="warning">⚠️ Save this key! It's the ONLY way to recover your account.</p>
+        <div class="card">
+            <h2>🔑 Your New Identity</h2>
+            
+            <div class="warning-box">
+                <strong>⚠️ SAVE YOUR RECOVERY KEY NOW</strong><br>
+                This is the ONLY time you will see it. If you lose it, your account is gone forever.
+                There is no password reset. There is no recovery option.
+            </div>
             
             <div class="key-display">
-                <code id="recovery-key-display"></code>
-            </div>
-            <button id="btn-copy-recovery" class="btn btn-secondary btn-small">Copy Key</button>
-            
-            <div class="form-group">
-                <label>Your User ID</label>
-                <div class="key-display small">
-                    <code id="user-id-display"></code>
+                <div class="key-label">Recovery Key (64 characters) — SAVE THIS!</div>
+                <div class="key-value" id="recovery-key-display"></div>
+                <div class="key-actions">
+                    <button id="btn-copy-recovery" class="btn btn-secondary btn-small">Copy Key</button>
                 </div>
-                <p class="hint">Share this ID with others so they can message you.</p>
+            </div>
+            
+            <div class="key-display">
+                <div class="key-label">Your User ID (Share this to receive messages)</div>
+                <div class="key-value" id="user-id-display"></div>
             </div>
             
             <div class="form-group">
-                <label for="signup-display-name">Display Name (optional)</label>
+                <label>Display Name (Optional)</label>
                 <input type="text" id="signup-display-name" placeholder="Anonymous" maxlength="32">
             </div>
             
-            <div class="signup-actions">
-                <button id="btn-back-from-signup" class="btn btn-secondary">Back</button>
-                <button id="btn-confirm-signup" class="btn btn-primary">I Saved My Key</button>
+            <div class="btn-group">
+                <button id="btn-confirm-signup" class="btn btn-primary">I Saved My Recovery Key — Continue</button>
+                <button id="btn-back-from-signup" class="btn btn-secondary">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- ===================================================================
+    <!-- ========================================
          RESTORE SCREEN
-         Enter recovery key to restore account on new device
-    =================================================================== -->
+         ======================================== -->
     <div id="restore-screen" class="screen hidden">
-        <div class="restore-container">
-            <h2>Restore Account</h2>
-            <p>Enter your 64-character recovery key.</p>
+        <div class="card">
+            <h2>🔑 Restore Your Identity</h2>
+            <p class="subtitle">Enter your 64-character recovery key to restore your account.</p>
             
             <div class="form-group">
-                <textarea id="restore-key-input" placeholder="Enter recovery key..." rows="3"></textarea>
+                <label>Recovery Key</label>
+                <input type="text" id="restore-key-input" 
+                       placeholder="Enter your 64-character recovery key" 
+                       maxlength="64" 
+                       style="font-family: monospace;">
+                <div id="restore-error" class="error-text hidden"></div>
             </div>
             
-            <div id="restore-error" class="error hidden"></div>
-            
-            <div class="restore-actions">
+            <div class="btn-group">
+                <button id="btn-confirm-restore" class="btn btn-primary">Restore Account</button>
                 <button id="btn-back-from-restore" class="btn btn-secondary">Back</button>
-                <button id="btn-confirm-restore" class="btn btn-primary">Restore</button>
             </div>
         </div>
     </div>
 
-    <!-- ===================================================================
-         MAIN APP SCREEN
-         The actual chat interface
-    =================================================================== -->
-    <div id="app-screen" class="screen hidden">
-        <div class="app-container">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="sidebar-header">
-                    <div class="user-info">
-                        <span id="current-display-name">Anonymous</span>
-                        <span id="current-user-id" class="user-id"></span>
-                    </div>
-                    <div class="header-actions">
-                        <span id="connection-status" class="status-dot">●</span>
-                        <button id="btn-logout" class="btn btn-small">Logout</button>
+    <!-- ========================================
+         MAIN APP
+         ======================================== -->
+    <div id="app-screen" class="app-container hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-info">
+                    <img id="current-user-avatar" class="user-avatar" src="" alt="">
+                    <div class="user-details">
+                        <div class="user-name" id="current-display-name">Anonymous</div>
+                        <div class="user-id">
+                            <span id="current-user-id"></span>
+                            <span id="connection-status" class="connection-status disconnected">●</span>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="new-chat">
-                    <input type="text" id="new-chat-input" placeholder="Enter User ID..." maxlength="32">
-                    <button id="btn-new-chat" class="btn btn-primary btn-small">Chat</button>
-                </div>
-                
-                <div id="conversations-list" class="conversations-list">
-                    <!-- Conversations populated by JS -->
+                <div class="user-actions">
+                    <button id="btn-copy-user-id" class="btn-header-icon" title="Copy User ID">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                    </button>
+                    <button id="btn-settings" class="btn-header-icon" title="Settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                    </button>
+                    <button id="btn-logout" class="btn-header-icon btn-logout" title="Logout">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             
-            <!-- Chat Area -->
-            <div class="chat-area">
-                <!-- Placeholder when no chat selected -->
-                <div id="chat-placeholder" class="chat-placeholder">
-                    <div class="placeholder-content">
-                        <div class="placeholder-icon">💬</div>
-                        <h3>Select a conversation</h3>
-                        <p>Or enter a User ID to start a new chat</p>
+            <div class="new-chat">
+                <div class="new-chat-input">
+                    <input type="text" id="new-chat-input" placeholder="Enter User ID to chat..." maxlength="32">
+                    <button id="btn-new-chat" class="btn btn-primary btn-small">Chat</button>
+                </div>
+                <div class="new-chat-actions">
+                    <button id="btn-show-qr" class="btn-action" onclick="App.showQRModal()" title="Share QR Code">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                            <rect x="14" y="14" width="3" height="3"/>
+                            <rect x="18" y="14" width="3" height="3"/>
+                            <rect x="14" y="18" width="3" height="3"/>
+                            <rect x="18" y="18" width="3" height="3"/>
+                        </svg>
+                        QR
+                    </button>
+                    <button id="btn-create-group" class="btn-action" onclick="App.openCreateGroupModal()" title="Create Group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        Group
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Groups Section -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <span>Groups</span>
+                </div>
+                <div id="groups-list" class="groups-list">
+                    <div class="no-groups">No groups yet.</div>
+                </div>
+            </div>
+            
+            <!-- Direct Messages Section -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <span>Direct Messages</span>
+                </div>
+                <div class="conversations-list" id="conversations-list">
+                    <div class="no-conversations">
+                        No conversations yet.<br>
+                        Enter a User ID above to start chatting.
                     </div>
                 </div>
-                
-                <!-- Active chat container -->
-                <div id="chat-container" class="chat-container hidden">
-                    <div class="chat-header">
-                        <div class="chat-recipient">
-                            <span id="chat-recipient-name">Recipient</span>
+            </div>
+        </aside>
+        
+        <!-- Chat Area -->
+        <main class="chat-area">
+            <div id="chat-placeholder" class="chat-placeholder">
+                Select a conversation or start a new chat.
+            </div>
+            
+            <div id="chat-container" class="chat-container hidden">
+                <div class="chat-header">
+                    <button id="btn-back-to-chats" class="btn-header-icon btn-back-mobile" title="Back">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+                    <div class="chat-recipient">
+                        <img id="chat-recipient-avatar" class="recipient-avatar" src="" alt="">
+                        <div>
+                            <div class="recipient-name" id="chat-recipient-name">Anonymous</div>
+                            <div class="recipient-meta">
+                                <span class="recipient-id" id="chat-recipient-id"></span>
+                                <span id="chat-online-status" class="online-status offline">Offline</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div id="messages-container" class="messages-container">
-                        <!-- Messages populated by JS -->
-                    </div>
-                    
-                    <div class="message-input-container">
-                        <textarea id="message-input" placeholder="Type a message..." rows="1"></textarea>
-                        <button id="btn-send-message" class="btn btn-primary">Send</button>
-                    </div>
+                    <button id="btn-chat-settings" class="btn-header-icon" title="Chat Settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="1"/>
+                            <circle cx="12" cy="5" r="1"/>
+                            <circle cx="12" cy="19" r="1"/>
+                        </svg>
+                    </button>
                 </div>
+                
+                <!-- Verification Warning Banner -->
+                <div id="verification-banner" class="verification-banner hidden">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <span>Unverified contact. <a href="#" id="verify-now-link">Verify safety number</a> to confirm identity.</span>
+                    <button id="btn-dismiss-verification" class="btn-dismiss">✕</button>
+                </div>
+                
+                <div class="messages-container" id="messages-container"></div>
+                
+                <div id="typing-indicator" class="typing-indicator hidden">
+                    User is typing...
+                </div>
+                
+                <!-- Reply Preview -->
+                <div id="reply-preview" class="reply-preview hidden">
+                    <span id="reply-preview-text"></span>
+                    <button id="btn-cancel-reply" class="btn-cancel-reply">✕</button>
+                </div>
+                
+                <div class="message-input-container">
+                    <button id="btn-gif" class="btn-icon" title="Send GIF">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/>
+                            <text x="5" y="15" font-size="7" fill="currentColor" stroke="none" font-weight="bold">GIF</text>
+                        </svg>
+                    </button>
+                    <button id="btn-emoji" class="btn-icon" title="Emoji">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                            <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div id="emoji-picker" class="emoji-picker hidden"></div>
+                    <textarea id="message-input" placeholder="Type a message..." rows="1"></textarea>
+                    <button id="btn-send-message" class="btn-send" title="Send">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor" stroke="none"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================
+         SETTINGS MODAL
+         ======================================== -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>⚙️ Settings</h2>
+            
+            <div class="form-group">
+                <label>Profile Picture</label>
+                <div class="avatar-upload-container">
+                    <img id="settings-avatar-preview" class="avatar-preview" src="" alt="">
+                    <div class="avatar-buttons">
+                        <button id="btn-upload-avatar" class="btn btn-secondary btn-small">Upload Image</button>
+                        <button id="btn-remove-avatar" class="btn btn-secondary btn-small">Remove</button>
+                    </div>
+                    <input type="file" id="settings-avatar-input" accept="image/*" style="display: none;">
+                </div>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">
+                    Max 500KB. Will be resized to 80x80.
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" id="settings-display-name" placeholder="Anonymous" maxlength="32">
+            </div>
+            
+            <div class="form-group">
+                <label>Blocked Users</label>
+                <button id="btn-view-blocked" class="btn btn-secondary btn-small">View Blocked Users</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Notification Sounds</label>
+                <button id="btn-toggle-sound" class="btn btn-secondary btn-small" onclick="App.toggleSound(); this.textContent = App.soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';">🔊 Sound On</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Recovery Key</label>
+                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 10px;">
+                    Your recovery key was shown only during signup. 
+                    If you didn't save it, you cannot recover it.
+                </p>
+                <button id="btn-export-key" class="btn btn-secondary btn-small">About Recovery</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Wipe Local Data</label>
+                <button id="btn-wipe-local" class="btn btn-danger btn-small">Clear All Local Data</button>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">
+                    Clears localStorage and reloads. You'll need to create a new account or restore.
+                </p>
+            </div>
+            
+            <div class="modal-actions">
+                <button id="btn-close-settings" class="btn btn-secondary">Cancel</button>
+                <button id="btn-save-settings" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         CHAT SETTINGS MODAL
+         ======================================== -->
+    <div id="chat-settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>💬 Chat Settings</h2>
+            
+            <div class="form-group">
+                <label>Nickname for this contact</label>
+                <input type="text" id="chat-settings-nickname" placeholder="Enter a nickname..." maxlength="32">
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">
+                    Only you will see this nickname.
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label>Message Deletion</label>
+                <select id="delete-mode">
+                    <option value="never">Never delete</option>
+                    <option value="24hr">Delete after 24 hours</option>
+                    <option value="on_read">Delete when read</option>
+                </select>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">
+                    This setting applies to new messages you send in this conversation.
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label>Verify Contact</label>
+                <button id="btn-verify-contact" class="btn btn-secondary btn-small">🔐 View Safety Number</button>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">
+                    Compare this number with your contact to verify their identity.
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label>Block User</label>
+                <button id="btn-block-user" class="btn btn-danger btn-small">🚫 Block User</button>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">
+                    Blocked users cannot send you messages.
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label>Clear Messages</label>
+                <button id="btn-wipe-messages" class="btn btn-secondary btn-small">Delete All Messages</button>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">
+                    Deletes all messages but keeps the conversation.
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label>Delete Conversation</label>
+                <button id="btn-delete-chat" class="btn btn-danger btn-small">Delete Chat</button>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">
+                    Removes this conversation from your list.
+                </p>
+            </div>
+            
+            <div class="modal-actions">
+                <button id="btn-close-chat-settings" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         SAFETY NUMBER MODAL
+         ======================================== -->
+    <div id="safety-number-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🔐 Safety Number</h2>
+            
+            <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; text-align: center;">
+                If this number matches what your contact sees, your conversation is secure and not being intercepted.
+            </p>
+            
+            <div id="safety-number-display" style="background: var(--bg-tertiary); padding: 20px; border-radius: 8px; font-family: monospace; font-size: 18px; text-align: center; line-height: 2; letter-spacing: 2px; border: 1px solid var(--border);">
+                <!-- Safety number will be displayed here -->
+            </div>
+            
+            <p style="color: var(--text-secondary); font-size: 12px; margin-top: 15px; text-align: center;">
+                Compare over a phone call or in person.
+            </p>
+            
+            <div class="modal-actions">
+                <button id="btn-close-safety" class="btn btn-secondary">Close</button>
+                <button id="btn-mark-verified" class="btn btn-primary">✓ Mark as Verified</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         BLOCKED USERS MODAL
+         ======================================== -->
+    <div id="blocked-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🚫 Blocked Users</h2>
+            
+            <div id="blocked-list" class="blocked-list">
+                <div class="no-blocked">No blocked users.</div>
+            </div>
+            
+            <div class="modal-actions">
+                <button id="btn-close-blocked" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         QR CODE MODAL
+         ======================================== -->
+    <div id="qr-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>📱 Share Your ID</h2>
+            
+            <div id="qr-code-container" class="qr-code-container">
+                <!-- QR code will be generated here -->
+            </div>
+            
+            <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-top: 15px;">
+                Others can scan this to add you as a contact.
+            </p>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="App.closeQRModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         CREATE GROUP MODAL
+         ======================================== -->
+    <div id="create-group-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>👥 Create Group</h2>
+            
+            <div class="form-group">
+                <label>Group Name</label>
+                <input type="text" id="group-name-input" placeholder="Enter group name..." maxlength="50">
+            </div>
+            
+            <div class="form-group">
+                <label>Select Members</label>
+                <div id="group-contacts-list" class="group-contacts-list">
+                    <!-- Contacts will be listed here -->
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="document.getElementById('create-group-modal').classList.add('hidden')">Cancel</button>
+                <button class="btn btn-primary" onclick="App.createGroup()">Create Group</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         GIF PICKER MODAL
+         ======================================== -->
+    <div id="gif-modal" class="modal hidden">
+        <div class="modal-content gif-modal-content">
+            <h2>🎬 Send a GIF</h2>
+            
+            <div class="gif-search">
+                <input type="text" id="gif-search-input" placeholder="Search GIFs..." autocomplete="off">
+            </div>
+            
+            <div id="gif-results" class="gif-results">
+                <div class="gif-loading">Search for GIFs above.</div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="App.closeGifModal()">Cancel</button>
+            </div>
+            
+            <div class="giphy-attribution">
+                Powered by GIPHY
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         ALERT MODAL (Custom popup)
+         ======================================== -->
+    <div id="alert-modal" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <p id="alert-modal-message" style="margin: 0; line-height: 1.6;"></p>
+            <div class="modal-actions">
+                <button id="btn-alert-ok" class="btn btn-primary">OK</button>
             </div>
         </div>
     </div>
