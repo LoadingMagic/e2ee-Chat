@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureChat - E2E Encrypted Messaging</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+    <!-- ===================================================================
+         WELCOME SCREEN
+         First screen users see - choose to create account or restore
+    =================================================================== -->
+    <div id="welcome-screen" class="screen">
+        <div class="welcome-container">
+            <div class="logo">🔒</div>
+            <h1>SecureChat</h1>
+            <p class="tagline">End-to-End Encrypted Messaging</p>
+            
+            <div class="welcome-buttons">
+                <button id="btn-new-account" class="btn btn-primary">Create New Account</button>
+                <button id="btn-restore" class="btn btn-secondary">Restore Account</button>
+            </div>
+            
+            <div class="welcome-info">
+                <p><strong>No email or phone required.</strong></p>
+                <p>Your identity is a cryptographic key pair.<br>
+                Messages are encrypted in your browser.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         SIGNUP SCREEN
+         Shows recovery key (SAVE THIS!) and lets user set display name
+    =================================================================== -->
+    <div id="signup-screen" class="screen hidden">
+        <div class="signup-container">
+            <h2>Your Recovery Key</h2>
+            <p class="warning">⚠️ Save this key! It's the ONLY way to recover your account.</p>
+            
+            <div class="key-display">
+                <code id="recovery-key-display"></code>
+            </div>
+            <button id="btn-copy-recovery" class="btn btn-secondary btn-small">Copy Key</button>
+            
+            <div class="form-group">
+                <label>Your User ID</label>
+                <div class="key-display small">
+                    <code id="user-id-display"></code>
+                </div>
+                <p class="hint">Share this ID with others so they can message you.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="signup-display-name">Display Name (optional)</label>
+                <input type="text" id="signup-display-name" placeholder="Anonymous" maxlength="32">
+            </div>
+            
+            <div class="signup-actions">
+                <button id="btn-back-from-signup" class="btn btn-secondary">Back</button>
+                <button id="btn-confirm-signup" class="btn btn-primary">I Saved My Key</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         RESTORE SCREEN
+         Enter recovery key to restore account on new device
+    =================================================================== -->
+    <div id="restore-screen" class="screen hidden">
+        <div class="restore-container">
+            <h2>Restore Account</h2>
+            <p>Enter your 64-character recovery key.</p>
+            
+            <div class="form-group">
+                <textarea id="restore-key-input" placeholder="Enter recovery key..." rows="3"></textarea>
+            </div>
+            
+            <div id="restore-error" class="error hidden"></div>
+            
+            <div class="restore-actions">
+                <button id="btn-back-from-restore" class="btn btn-secondary">Back</button>
+                <button id="btn-confirm-restore" class="btn btn-primary">Restore</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         MAIN APP SCREEN
+         The actual chat interface
+    =================================================================== -->
+    <div id="app-screen" class="screen hidden">
+        <div class="app-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <div class="user-info">
+                        <span id="current-display-name">Anonymous</span>
+                        <span id="current-user-id" class="user-id"></span>
+                    </div>
+                    <div class="header-actions">
+                        <span id="connection-status" class="status-dot">●</span>
+                        <button id="btn-logout" class="btn btn-small">Logout</button>
+                    </div>
+                </div>
+                
+                <div class="new-chat">
+                    <input type="text" id="new-chat-input" placeholder="Enter User ID..." maxlength="32">
+                    <button id="btn-new-chat" class="btn btn-primary btn-small">Chat</button>
+                </div>
+                
+                <div id="conversations-list" class="conversations-list">
+                    <!-- Conversations populated by JS -->
+                </div>
+            </div>
+            
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <!-- Placeholder when no chat selected -->
+                <div id="chat-placeholder" class="chat-placeholder">
+                    <div class="placeholder-content">
+                        <div class="placeholder-icon">💬</div>
+                        <h3>Select a conversation</h3>
+                        <p>Or enter a User ID to start a new chat</p>
+                    </div>
+                </div>
+                
+                <!-- Active chat container -->
+                <div id="chat-container" class="chat-container hidden">
+                    <div class="chat-header">
+                        <div class="chat-recipient">
+                            <span id="chat-recipient-name">Recipient</span>
+                        </div>
+                    </div>
+                    
+                    <div id="messages-container" class="messages-container">
+                        <!-- Messages populated by JS -->
+                    </div>
+                    
+                    <div class="message-input-container">
+                        <textarea id="message-input" placeholder="Type a message..." rows="1"></textarea>
+                        <button id="btn-send-message" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/crypto.js"></script>
+    <script src="js/websocket.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

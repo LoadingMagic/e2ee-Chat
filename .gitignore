@@ -1,0 +1,39 @@
+# Environment
+.env
+*.env.local
+venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+package-lock.json
+
+# Capacitor/Android
+frontend/www/
+frontend/android/
+frontend/ios/
+*.apk
+*.aab
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Local config
+local.properties
