@@ -230,14 +230,7 @@ securechat/
 
 ## 🤝 Contributing
 
-Contributions welcome! Areas that need work:
-
-- [ ] Forward secrecy (Double Ratchet)
-- [ ] File/image sharing
-- [ ] Message search (client-side)
-- [ ] Desktop app (Electron)
-- [ ] iOS build
-- [ ] Automated tests
+Contributions welcome!
 
 ## 📚 Learning Resources
 
