@@ -7,6 +7,8 @@ A fully functional end-to-end encrypted (E2EE) chat application built with vanil
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![JavaScript](https://img.shields.io/badge/javascript-ES6+-yellow.svg)
+[![Release](https://img.shields.io/github/v/release/LoadingMagic/e2ee-Chat)](https://github.com/LoadingMagic/e2ee-Chat/releases/latest)
+[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen)](https://github.com/LoadingMagic/e2ee-Chat/releases/latest)
 
 ## ✨ Features
 
