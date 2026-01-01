@@ -1,4 +1,4 @@
-# 🔒 SecureChat - End-to-End Encrypted Messaging
+# 🔒 SecureChat - End-to-End Encrypted Messaging 
 
 A fully functional end-to-end encrypted (E2EE) chat application built with vanilla JavaScript and Python. **Zero external crypto libraries**—uses only the native Web Crypto API.
 
