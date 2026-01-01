@@ -60,7 +60,7 @@ Users must trust that the server serves unmodified JavaScript. A malicious serve
 If you discover a security vulnerability, please:
 
 1. **Do NOT** open a public issue.
-2. Email details to [your-email@example.com].
+2. Email details to [info@magika.world].
 3. Include:
    - Description of the vulnerability.
    - Steps to reproduce.
